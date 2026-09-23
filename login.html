@@ -1,0 +1,447 @@
+<!DOCTYPE html>
+<html lang="az">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>TecPulse Admin — Giriş</title>
+  <style>
+    :root {
+      --primary: #6c63ff;
+      --primary-dark: #5a52d5;
+      --primary-light: #ede9ff;
+      --secondary: #ff6584;
+      --danger: #ef4444;
+      --dark: #1e1b4b;
+      --border: #e5e3f5;
+      --bg: #f5f4ff;
+      --card: #ffffff;
+      --text: #1e1b4b;
+      --muted: #6b7280;
+      --radius: 16px;
+      --shadow: 0 8px 40px rgba(108,99,255,0.15);
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+      background: var(--bg);
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+      overflow: hidden;
+    }
+
+    /* Animated background blobs */
+    .blob {
+      position: fixed;
+      border-radius: 50%;
+      filter: blur(80px);
+      opacity: 0.18;
+      animation: float 8s ease-in-out infinite;
+      pointer-events: none;
+    }
+    .blob-1 { width: 420px; height: 420px; background: var(--primary); top: -100px; left: -100px; animation-delay: 0s; }
+    .blob-2 { width: 300px; height: 300px; background: var(--secondary); bottom: -80px; right: -80px; animation-delay: 3s; }
+    .blob-3 { width: 200px; height: 200px; background: #22c55e; bottom: 30%; left: 10%; animation-delay: 5s; }
+
+    @keyframes float {
+      0%, 100% { transform: translateY(0) scale(1); }
+      50% { transform: translateY(-30px) scale(1.05); }
+    }
+
+    /* Login card */
+    .login-card {
+      background: var(--card);
+      border-radius: 24px;
+      box-shadow: var(--shadow);
+      padding: 48px 44px;
+      width: 420px;
+      max-width: 94vw;
+      position: relative;
+      z-index: 10;
+      border: 1px solid var(--border);
+      animation: cardIn 0.5s cubic-bezier(.4,0,.2,1);
+    }
+
+    @keyframes cardIn {
+      from { transform: translateY(32px) scale(0.97); opacity: 0; }
+      to { transform: none; opacity: 1; }
+    }
+
+    .login-logo {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      margin-bottom: 32px;
+    }
+
+    .logo-icon {
+      width: 52px; height: 52px;
+      background: linear-gradient(135deg, var(--primary), var(--secondary));
+      border-radius: 16px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 26px;
+      box-shadow: 0 4px 16px rgba(108,99,255,0.3);
+    }
+
+    .logo-text strong {
+      display: block;
+      font-size: 20px;
+      font-weight: 800;
+      color: var(--dark);
+    }
+
+    .logo-text span {
+      font-size: 12px;
+      color: var(--muted);
+    }
+
+    .login-title {
+      font-size: 26px;
+      font-weight: 800;
+      color: var(--dark);
+      margin-bottom: 6px;
+    }
+
+    .login-sub {
+      font-size: 14px;
+      color: var(--muted);
+      margin-bottom: 32px;
+    }
+
+    .form-group { margin-bottom: 18px; }
+
+    .form-label {
+      display: block;
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--dark);
+      margin-bottom: 7px;
+    }
+
+    .input-wrap {
+      position: relative;
+    }
+
+    .input-icon {
+      position: absolute;
+      left: 14px; top: 50%;
+      transform: translateY(-50%);
+      font-size: 16px;
+      pointer-events: none;
+    }
+
+    .form-control {
+      width: 100%;
+      padding: 12px 14px 12px 42px;
+      border: 1.5px solid var(--border);
+      border-radius: 12px;
+      font-size: 14px;
+      color: var(--text);
+      background: var(--bg);
+      outline: none;
+      transition: all 0.2s ease;
+      font-family: inherit;
+    }
+
+    .form-control:focus {
+      border-color: var(--primary);
+      background: #fff;
+      box-shadow: 0 0 0 3px rgba(108,99,255,0.12);
+    }
+
+    .form-control.error { border-color: var(--danger); }
+
+    .pw-toggle {
+      position: absolute;
+      right: 12px; top: 50%;
+      transform: translateY(-50%);
+      background: none;
+      border: none;
+      cursor: pointer;
+      font-size: 16px;
+      padding: 4px;
+      color: var(--muted);
+    }
+
+    .remember-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 24px;
+    }
+
+    .remember-label {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 13px;
+      color: var(--muted);
+      cursor: pointer;
+    }
+
+    .remember-label input { accent-color: var(--primary); width: 15px; height: 15px; }
+
+    .forgot-link {
+      font-size: 13px;
+      color: var(--primary);
+      font-weight: 600;
+      text-decoration: none;
+    }
+
+    .forgot-link:hover { text-decoration: underline; }
+
+    .btn-login {
+      width: 100%;
+      padding: 14px;
+      background: linear-gradient(135deg, var(--primary), #8b5cf6);
+      color: #fff;
+      border: none;
+      border-radius: 12px;
+      font-size: 15px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all 0.25s ease;
+      box-shadow: 0 4px 16px rgba(108,99,255,0.35);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+    }
+
+    .btn-login:hover { transform: translateY(-1px); box-shadow: 0 8px 24px rgba(108,99,255,0.45); }
+    .btn-login:active { transform: translateY(0); }
+    .btn-login:disabled { opacity: 0.7; cursor: not-allowed; transform: none; }
+
+    /* Error alert */
+    .alert-error {
+      background: #fee2e2;
+      border: 1px solid #fecaca;
+      color: #dc2626;
+      border-radius: 10px;
+      padding: 11px 14px;
+      font-size: 13px;
+      font-weight: 500;
+      margin-bottom: 18px;
+      display: none;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .alert-error.show { display: flex; }
+
+    /* Demo hint */
+    .demo-hint {
+      margin-top: 24px;
+      padding: 14px 16px;
+      background: var(--primary-light);
+      border-radius: 12px;
+      border: 1px solid rgba(108,99,255,0.2);
+    }
+
+    .demo-hint-title {
+      font-size: 12px;
+      font-weight: 700;
+      color: var(--primary);
+      margin-bottom: 6px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .demo-cred {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      font-size: 12px;
+      color: var(--dark);
+      padding: 3px 0;
+    }
+
+    .demo-cred span { font-family: monospace; background: rgba(108,99,255,0.12); padding: 2px 7px; border-radius: 5px; }
+
+    .copy-btn {
+      background: var(--primary);
+      color: #fff;
+      border: none;
+      border-radius: 8px;
+      padding: 6px 12px;
+      font-size: 11px;
+      font-weight: 600;
+      cursor: pointer;
+      margin-top: 8px;
+      width: 100%;
+      transition: all 0.2s;
+    }
+
+    .copy-btn:hover { background: var(--primary-dark); }
+
+    /* Spinner */
+    .spinner {
+      width: 18px; height: 18px;
+      border: 2px solid rgba(255,255,255,0.4);
+      border-top-color: #fff;
+      border-radius: 50%;
+      animation: spin 0.7s linear infinite;
+      display: none;
+    }
+
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    .footer-text {
+      text-align: center;
+      margin-top: 20px;
+      font-size: 12px;
+      color: var(--muted);
+    }
+  </style>
+</head>
+<body>
+
+  <div class="blob blob-1"></div>
+  <div class="blob blob-2"></div>
+  <div class="blob blob-3"></div>
+
+  <div class="login-card">
+    <div class="login-logo">
+      <div class="logo-icon">📱</div>
+      <div class="logo-text">
+        <strong>TecPulse</strong>
+        <span>Admin Panel</span>
+      </div>
+    </div>
+
+    <div class="login-title">Xoş gəldiniz 👋</div>
+    <div class="login-sub">Davam etmək üçün hesabınıza daxil olun</div>
+
+    <div class="alert-error" id="alertError">
+      <span>❌</span>
+      <span id="alertMsg">Email və ya şifrə yanlışdır</span>
+    </div>
+
+    <form onsubmit="handleLogin(event)">
+      <div class="form-group">
+        <label class="form-label">Email ünvanı</label>
+        <div class="input-wrap">
+          <span class="input-icon">📧</span>
+          <input class="form-control" id="loginEmail" type="email" placeholder="admin@tecpulse.az" autocomplete="email" required />
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">Şifrə</label>
+        <div class="input-wrap">
+          <span class="input-icon">🔒</span>
+          <input class="form-control" id="loginPassword" type="password" placeholder="Şifrənizi daxil edin" autocomplete="current-password" required />
+          <button type="button" class="pw-toggle" id="pwToggle" onclick="togglePw()">👁️</button>
+        </div>
+      </div>
+
+      <div class="remember-row">
+        <label class="remember-label">
+          <input type="checkbox" id="rememberMe" />
+          Məni xatırla
+        </label>
+        <a href="#" class="forgot-link" onclick="forgotPw(event)">Şifrəni unutdum?</a>
+      </div>
+
+      <button class="btn-login" type="submit" id="loginBtn">
+        <div class="spinner" id="spinner"></div>
+        <span id="btnText">🔐 Daxil ol</span>
+      </button>
+    </form>
+
+    <div class="demo-hint">
+      <div class="demo-hint-title">🧪 Demo Hesab</div>
+      <div class="demo-cred">Email: <span>admin@tecpulse.az</span></div>
+      <div class="demo-cred">Şifrə: <span>admin123</span></div>
+      <button class="copy-btn" onclick="fillDemo()">⚡ Avtomatik doldur</button>
+    </div>
+
+    <div class="footer-text">© 2026 TecPulse Mobile. Bütün hüquqlar qorunur.</div>
+  </div>
+
+  <script>
+    // ── CREDENTIALS (demo) ──
+    const USERS = [
+      { email: 'admin@tecpulse.az', password: 'admin123', name: 'Super Admin', role: 'Super Admin' },
+      { email: 'menecer@tecpulse.az', password: 'menecer123', name: 'Menecer', role: 'Menecer' },
+    ];
+
+    // If already logged in, redirect
+    if (sessionStorage.getItem('tp_auth') || localStorage.getItem('tp_auth')) {
+      window.location.href = 'index.html';
+    }
+
+    function handleLogin(e) {
+      e.preventDefault();
+      const email = document.getElementById('loginEmail').value.trim().toLowerCase();
+      const password = document.getElementById('loginPassword').value;
+      const remember = document.getElementById('rememberMe').checked;
+
+      // Show loading
+      document.getElementById('spinner').style.display = 'block';
+      document.getElementById('btnText').textContent = 'Yüklənir...';
+      document.getElementById('loginBtn').disabled = true;
+      document.getElementById('alertError').classList.remove('show');
+
+      setTimeout(() => {
+        const user = USERS.find(u => u.email === email && u.password === password);
+
+        if (user) {
+          const authData = JSON.stringify({ email: user.email, name: user.name, role: user.role, ts: Date.now() });
+          if (remember) {
+            localStorage.setItem('tp_auth', authData);
+          } else {
+            sessionStorage.setItem('tp_auth', authData);
+          }
+          window.location.href = 'index.html';
+        } else {
+          document.getElementById('alertMsg').textContent = 'Email və ya şifrə yanlışdır';
+          document.getElementById('alertError').classList.add('show');
+          document.getElementById('loginEmail').classList.add('error');
+          document.getElementById('loginPassword').classList.add('error');
+          document.getElementById('spinner').style.display = 'none';
+          document.getElementById('btnText').textContent = '🔐 Daxil ol';
+          document.getElementById('loginBtn').disabled = false;
+        }
+      }, 900);
+    }
+
+    function togglePw() {
+      const inp = document.getElementById('loginPassword');
+      const btn = document.getElementById('pwToggle');
+      if (inp.type === 'password') {
+        inp.type = 'text';
+        btn.textContent = '🙈';
+      } else {
+        inp.type = 'password';
+        btn.textContent = '👁️';
+      }
+    }
+
+    function fillDemo() {
+      document.getElementById('loginEmail').value = 'admin@tecpulse.az';
+      document.getElementById('loginPassword').value = 'admin123';
+      document.getElementById('loginEmail').classList.remove('error');
+      document.getElementById('loginPassword').classList.remove('error');
+      document.getElementById('alertError').classList.remove('show');
+    }
+
+    function forgotPw(e) {
+      e.preventDefault();
+      alert('Şifrəni sıfırlamaq üçün admin ilə əlaqə saxlayın:\nadmin@tecpulse.az');
+    }
+
+    // Clear error on typing
+    ['loginEmail','loginPassword'].forEach(id => {
+      document.getElementById(id).addEventListener('input', () => {
+        document.getElementById(id).classList.remove('error');
+        document.getElementById('alertError').classList.remove('show');
+      });
+    });
+  </script>
+</body>
+</html>
