@@ -452,6 +452,283 @@ function handleSearch(q) {
   showToast('🔍 Axtarış: ' + q);
 }
 
+// ══════════════════════════════════════════
+// USER & ROLE MANAGEMENT
+// ══════════════════════════════════════════
+
+let roles = [
+  {
+    id: 1, name: 'Super Admin', color: '#6c63ff', icon: '👑',
+    permissions: ['dashboard', 'products', 'orders', 'customers', 'categories', 'settings', 'users'],
+    userCount: 1, editable: false
+  },
+  {
+    id: 2, name: 'Menecer', color: '#22c55e', icon: '📋',
+    permissions: ['dashboard', 'products', 'orders', 'customers'],
+    userCount: 2, editable: true
+  },
+  {
+    id: 3, name: 'Anbar', color: '#f59e0b', icon: '📦',
+    permissions: ['dashboard', 'products'],
+    userCount: 1, editable: true
+  },
+  {
+    id: 4, name: 'Kuryer', color: '#3b82f6', icon: '🚚',
+    permissions: ['orders'],
+    userCount: 2, editable: true
+  },
+];
+
+let adminUsers = [
+  { id: 1, name: 'Orxan Əlizadə', email: 'orxan@tecpulse.az', role: 1, status: 'active', lastLogin: '23.09.2026 14:32', avatar: '#6c63ff', phone: '+994501234567' },
+  { id: 2, name: 'Aysel Musayeva', email: 'aysel@tecpulse.az', role: 2, status: 'active', lastLogin: '23.09.2026 11:15', avatar: '#ff6584', phone: '+994552345678' },
+  { id: 3, name: 'Kamran Nəsirov', email: 'kamran@tecpulse.az', role: 2, status: 'active', lastLogin: '22.09.2026 17:44', avatar: '#22c55e', phone: '+994703456789' },
+  { id: 4, name: 'Leyla Əhmədova', email: 'leyla@tecpulse.az', role: 3, status: 'inactive', lastLogin: '20.09.2026 09:00', avatar: '#f59e0b', phone: '+994774567890' },
+  { id: 5, name: 'Şahin Hüseynli', email: 'sahin@tecpulse.az', role: 4, status: 'active', lastLogin: '23.09.2026 08:21', avatar: '#3b82f6', phone: '+994515678901' },
+  { id: 6, name: 'Nərmin Babaxanova', email: 'nermin@tecpulse.az', role: 4, status: 'active', lastLogin: '23.09.2026 10:03', avatar: '#8b5cf6', phone: '+994506789012' },
+];
+
+const allPermissions = [
+  { key: 'dashboard', label: 'Dashboard', icon: '📊' },
+  { key: 'products',  label: 'Məhsullar', icon: '📦' },
+  { key: 'orders',    label: 'Sifarişlər', icon: '🛍️' },
+  { key: 'customers', label: 'Müştərilər', icon: '👥' },
+  { key: 'categories',label: 'Kateqoriyalar', icon: '🏷️' },
+  { key: 'settings',  label: 'Ayarlar', icon: '⚙️' },
+  { key: 'users',     label: 'İstifadəçilər', icon: '🔐' },
+];
+
+let editingUserId = null;
+let editingRoleId = null;
+
+// ── RENDER USERS ──
+function renderUsers() {
+  // Stats
+  const total = adminUsers.length;
+  const active = adminUsers.filter(u => u.status === 'active').length;
+  document.getElementById('userStatTotal').textContent = total;
+  document.getElementById('userStatActive').textContent = active;
+  document.getElementById('userStatInactive').textContent = total - active;
+  document.getElementById('userStatRoles').textContent = roles.length;
+
+  // Table
+  const tbody = document.getElementById('usersBody');
+  if (!tbody) return;
+
+  tbody.innerHTML = adminUsers.map(u => {
+    const role = roles.find(r => r.id === u.role) || { name: '—', color: '#999', icon: '?' };
+    const statusBadge = u.status === 'active'
+      ? '<span class="badge badge-success">● Aktiv</span>'
+      : '<span class="badge badge-gray">● Deaktiv</span>';
+    return `<tr>
+      <td>
+        <div class="product-cell">
+          <div class="user-avatar-sm" style="background:${u.avatar}">${u.name[0]}</div>
+          <div>
+            <div class="product-name">${u.name}</div>
+            <div class="product-cat">${u.email}</div>
+          </div>
+        </div>
+      </td>
+      <td>
+        <span class="role-chip" style="--rc:${role.color}">${role.icon} ${role.name}</span>
+      </td>
+      <td>${statusBadge}</td>
+      <td class="text-muted">${u.lastLogin}</td>
+      <td>
+        <div class="flex gap-2">
+          <button class="btn btn-outline btn-sm btn-icon" onclick="editUser(${u.id})" title="Redaktə">✏️</button>
+          <button class="btn btn-outline btn-sm btn-icon" onclick="toggleUserStatus(${u.id})" title="Status dəyiş">${u.status === 'active' ? '🔒' : '🔓'}</button>
+          ${u.role !== 1 ? `<button class="btn btn-danger-outline btn-sm btn-icon" onclick="deleteUser(${u.id})" title="Sil">🗑️</button>` : ''}
+        </div>
+      </td>
+    </tr>`;
+  }).join('');
+}
+
+// ── RENDER ROLES ──
+function renderRoles() {
+  const el = document.getElementById('rolesGrid');
+  if (!el) return;
+  el.innerHTML = roles.map(r => {
+    const permHtml = allPermissions.map(p => {
+      const has = r.permissions.includes(p.key);
+      return `<span class="perm-tag ${has ? 'has' : 'no'}">${p.icon} ${p.label}</span>`;
+    }).join('');
+    return `<div class="role-card">
+      <div class="role-card-header" style="--rc:${r.color}">
+        <div class="role-icon">${r.icon}</div>
+        <div class="role-info">
+          <div class="role-name">${r.name}</div>
+          <div class="role-users">${r.userCount} istifadəçi</div>
+        </div>
+        ${r.editable ? `
+        <div class="flex gap-2" style="margin-left:auto">
+          <button class="btn btn-outline btn-sm btn-icon" style="background:rgba(255,255,255,0.2);border-color:rgba(255,255,255,0.3);color:#fff" onclick="editRole(${r.id})">✏️</button>
+          <button class="btn btn-danger-outline btn-sm btn-icon" style="background:rgba(255,255,255,0.2);border-color:rgba(255,255,255,0.3);color:#fff" onclick="deleteRole(${r.id})">🗑️</button>
+        </div>` : '<span class="badge" style="background:rgba(255,255,255,0.25);color:#fff;margin-left:auto">Sistem</span>'}
+      </div>
+      <div class="role-card-body">
+        <div class="perm-grid">${permHtml}</div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+// ── USER CRUD ──
+function openAddUser() {
+  editingUserId = null;
+  document.getElementById('userModalTitle').textContent = '➕ Yeni İstifadəçi';
+  document.getElementById('userForm').reset();
+  document.getElementById('uPassword').parentElement.style.display = '';
+  populateRoleSelect();
+  document.getElementById('userModal').classList.add('open');
+}
+
+function editUser(id) {
+  const u = adminUsers.find(x => x.id === id);
+  if (!u) return;
+  editingUserId = id;
+  document.getElementById('userModalTitle').textContent = '✏️ İstifadəçini Redaktə Et';
+  document.getElementById('uName').value = u.name;
+  document.getElementById('uEmail').value = u.email;
+  document.getElementById('uPhone').value = u.phone || '';
+  document.getElementById('uStatus').value = u.status;
+  document.getElementById('uPassword').parentElement.style.display = 'none';
+  populateRoleSelect(u.role);
+  document.getElementById('userModal').classList.add('open');
+}
+
+function populateRoleSelect(selectedId) {
+  const sel = document.getElementById('uRole');
+  sel.innerHTML = roles.map(r =>
+    `<option value="${r.id}" ${r.id === selectedId ? 'selected' : ''}>${r.icon} ${r.name}</option>`
+  ).join('');
+}
+
+function saveUser() {
+  const name = document.getElementById('uName').value.trim();
+  const email = document.getElementById('uEmail').value.trim();
+  if (!name || !email) { showToast('❌ Ad və email mütləqdir', 'error'); return; }
+
+  const colors = ['#6c63ff','#ff6584','#22c55e','#f59e0b','#3b82f6','#8b5cf6','#ef4444','#14b8a6'];
+
+  if (editingUserId) {
+    const idx = adminUsers.findIndex(u => u.id === editingUserId);
+    adminUsers[idx] = {
+      ...adminUsers[idx],
+      name,
+      email,
+      phone: document.getElementById('uPhone').value.trim(),
+      role: parseInt(document.getElementById('uRole').value),
+      status: document.getElementById('uStatus').value,
+    };
+    showToast('✅ İstifadəçi yeniləndi', 'success');
+  } else {
+    adminUsers.push({
+      id: Date.now(),
+      name, email,
+      phone: document.getElementById('uPhone').value.trim(),
+      role: parseInt(document.getElementById('uRole').value),
+      status: document.getElementById('uStatus').value,
+      lastLogin: '—',
+      avatar: colors[adminUsers.length % colors.length],
+    });
+    // Update role userCount
+    const roleId = parseInt(document.getElementById('uRole').value);
+    const r = roles.find(x => x.id === roleId);
+    if (r) r.userCount++;
+    showToast('✅ İstifadəçi əlavə edildi', 'success');
+  }
+
+  closeModal('userModal');
+  renderUsers();
+  renderRoles();
+}
+
+function toggleUserStatus(id) {
+  const u = adminUsers.find(x => x.id === id);
+  if (!u) return;
+  if (u.role === 1) { showToast('⚠️ Super Admin deaktiv edilə bilməz', 'warning'); return; }
+  u.status = u.status === 'active' ? 'inactive' : 'active';
+  showToast(u.status === 'active' ? '🔓 Aktiv edildi' : '🔒 Deaktiv edildi');
+  renderUsers();
+}
+
+function deleteUser(id) {
+  const u = adminUsers.find(x => x.id === id);
+  if (!u) return;
+  if (u.role === 1) { showToast('⚠️ Super Admin silinə bilməz', 'warning'); return; }
+  if (!confirm(`"${u.name}" istifadəçisini silmək istəyirsiniz?`)) return;
+  adminUsers = adminUsers.filter(x => x.id !== id);
+  const r = roles.find(x => x.id === u.role);
+  if (r && r.userCount > 0) r.userCount--;
+  showToast('🗑️ İstifadəçi silindi');
+  renderUsers();
+  renderRoles();
+}
+
+// ── ROLE CRUD ──
+function openAddRole() {
+  editingRoleId = null;
+  document.getElementById('roleModalTitle').textContent = '➕ Yeni Rol';
+  document.getElementById('roleForm').reset();
+  renderPermissionCheckboxes([]);
+  document.getElementById('roleModal').classList.add('open');
+}
+
+function editRole(id) {
+  const r = roles.find(x => x.id === id);
+  if (!r) return;
+  editingRoleId = id;
+  document.getElementById('roleModalTitle').textContent = '✏️ Rolu Redaktə Et';
+  document.getElementById('rName').value = r.name;
+  document.getElementById('rIcon').value = r.icon;
+  document.getElementById('rColor').value = r.color;
+  renderPermissionCheckboxes(r.permissions);
+  document.getElementById('roleModal').classList.add('open');
+}
+
+function renderPermissionCheckboxes(active) {
+  document.getElementById('permCheckboxes').innerHTML = allPermissions.map(p => `
+    <label class="perm-check-label">
+      <input type="checkbox" value="${p.key}" ${active.includes(p.key) ? 'checked' : ''} />
+      <span>${p.icon} ${p.label}</span>
+    </label>
+  `).join('');
+}
+
+function saveRole() {
+  const name = document.getElementById('rName').value.trim();
+  if (!name) { showToast('❌ Rol adı mütləqdir', 'error'); return; }
+  const perms = [...document.querySelectorAll('#permCheckboxes input:checked')].map(i => i.value);
+  const icon = document.getElementById('rIcon').value || '🔑';
+  const color = document.getElementById('rColor').value || '#6c63ff';
+
+  if (editingRoleId) {
+    const idx = roles.findIndex(r => r.id === editingRoleId);
+    roles[idx] = { ...roles[idx], name, icon, color, permissions: perms };
+    showToast('✅ Rol yeniləndi', 'success');
+  } else {
+    roles.push({ id: Date.now(), name, icon, color, permissions: perms, userCount: 0, editable: true });
+    showToast('✅ Rol əlavə edildi', 'success');
+  }
+
+  closeModal('roleModal');
+  renderRoles();
+}
+
+function deleteRole(id) {
+  const r = roles.find(x => x.id === id);
+  if (!r) return;
+  if (!r.editable) { showToast('⚠️ Sistem rolu silinə bilməz', 'warning'); return; }
+  if (r.userCount > 0) { showToast('⚠️ Əvvəlcə bu roldakı istifadəçiləri dəyişin', 'warning'); return; }
+  if (!confirm(`"${r.name}" rolunu silmək istəyirsiniz?`)) return;
+  roles = roles.filter(x => x.id !== id);
+  showToast('🗑️ Rol silindi');
+  renderRoles();
+}
+
 // ── INIT ──
 document.addEventListener('DOMContentLoaded', () => {
   goTo('dashboard');
@@ -480,3 +757,17 @@ document.addEventListener('DOMContentLoaded', () => {
     m.addEventListener('click', e => { if (e.target === m) m.classList.remove('open'); });
   });
 });
+
+// Patch goTo to support users page
+const _origGoTo = goTo;
+goTo = function(page) {
+  _origGoTo(page);
+  const extras = {
+    users: ['🔐 İstifadəçilər', 'User & Role idarəsi'],
+  };
+  if (extras[page]) {
+    document.getElementById('topbar-title').textContent = extras[page][0];
+    document.getElementById('topbar-subtitle').textContent = extras[page][1];
+  }
+  if (page === 'users') { renderUsers(); renderRoles(); }
+};
