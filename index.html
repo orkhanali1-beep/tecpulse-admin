@@ -44,6 +44,9 @@
     <button class="nav-item" data-page="categories">
       <span class="nav-icon">🏷️</span> Kateqoriyalar
     </button>
+    <button class="nav-item" data-page="users">
+      <span class="nav-icon">🔐</span> İstifadəçilər
+    </button>
     <button class="nav-item" data-page="settings">
       <span class="nav-icon">⚙️</span> Ayarlar
     </button>
@@ -314,6 +317,79 @@
       </div>
     </div>
 
+    <!-- ═══════════ USERS PAGE ═══════════ -->
+    <div class="page" id="page-users">
+
+      <!-- Mini stat cards -->
+      <div class="user-stats-row">
+        <div class="user-stat-card">
+          <div class="user-stat-icon">👤</div>
+          <div>
+            <div class="user-stat-val" id="userStatTotal">0</div>
+            <div class="user-stat-lbl">Ümumi</div>
+          </div>
+        </div>
+        <div class="user-stat-card">
+          <div class="user-stat-icon">✅</div>
+          <div>
+            <div class="user-stat-val" id="userStatActive">0</div>
+            <div class="user-stat-lbl">Aktiv</div>
+          </div>
+        </div>
+        <div class="user-stat-card">
+          <div class="user-stat-icon">🔒</div>
+          <div>
+            <div class="user-stat-val" id="userStatInactive">0</div>
+            <div class="user-stat-lbl">Deaktiv</div>
+          </div>
+        </div>
+        <div class="user-stat-card">
+          <div class="user-stat-icon">🎭</div>
+          <div>
+            <div class="user-stat-val" id="userStatRoles">0</div>
+            <div class="user-stat-lbl">Rol</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Users table -->
+      <div class="card">
+        <div class="card-header">
+          <div>
+            <div class="card-title">👤 Admin İstifadəçilər</div>
+            <div class="card-subtitle">Sisteme daxil olan əməkdaşlar</div>
+          </div>
+          <button class="btn btn-primary" onclick="openAddUser()">➕ İstifadəçi əlavə et</button>
+        </div>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>İstifadəçi</th>
+                <th>Rol</th>
+                <th>Status</th>
+                <th>Son giriş</th>
+                <th>Əməliyyat</th>
+              </tr>
+            </thead>
+            <tbody id="usersBody"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Roles section -->
+      <div style="margin-top:28px">
+        <div class="flex items-center justify-between mb-3" style="margin-bottom:16px">
+          <div>
+            <div class="card-title">🎭 Rol İdarəsi</div>
+            <div class="card-subtitle" style="margin-top:4px">Hər rolun icazələri</div>
+          </div>
+          <button class="btn btn-primary" onclick="openAddRole()">➕ Yeni rol</button>
+        </div>
+        <div class="roles-grid" id="rolesGrid"></div>
+      </div>
+    </div>
+
     <!-- ═══════════ SETTINGS PAGE ═══════════ -->
     <div class="page" id="page-settings">
       <div style="max-width:700px">
@@ -476,6 +552,93 @@
       <button class="modal-close" onclick="closeModal('orderModal')">×</button>
     </div>
     <div class="modal-body" id="orderDetail"></div>
+  </div>
+</div>
+
+<!-- ══ USER MODAL ══ -->
+<div class="modal-overlay" id="userModal">
+  <div class="modal">
+    <div class="modal-header">
+      <div class="modal-title" id="userModalTitle">Yeni İstifadəçi</div>
+      <button class="modal-close" onclick="closeModal('userModal')">×</button>
+    </div>
+    <div class="modal-body">
+      <form id="userForm" onsubmit="return false">
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">Ad Soyad <span>*</span></label>
+            <input class="form-control" id="uName" placeholder="Əli Həsənov" />
+          </div>
+          <div class="form-group">
+            <label class="form-label">Email <span>*</span></label>
+            <input class="form-control" id="uEmail" type="email" placeholder="ali@tecpulse.az" />
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">Telefon</label>
+            <input class="form-control" id="uPhone" placeholder="+994 50 XXX XX XX" />
+          </div>
+          <div class="form-group">
+            <label class="form-label">Rol</label>
+            <select class="form-control" id="uRole"></select>
+          </div>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Şifrə <span>*</span></label>
+          <input class="form-control" id="uPassword" type="password" placeholder="Minimum 8 simvol" />
+        </div>
+        <div class="form-group">
+          <label class="form-label">Status</label>
+          <select class="form-control" id="uStatus">
+            <option value="active">Aktiv</option>
+            <option value="inactive">Deaktiv</option>
+          </select>
+        </div>
+      </form>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-outline" onclick="closeModal('userModal')">Ləğv et</button>
+      <button class="btn btn-primary" onclick="saveUser()">💾 Yadda saxla</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══ ROLE MODAL ══ -->
+<div class="modal-overlay" id="roleModal">
+  <div class="modal">
+    <div class="modal-header">
+      <div class="modal-title" id="roleModalTitle">Yeni Rol</div>
+      <button class="modal-close" onclick="closeModal('roleModal')">×</button>
+    </div>
+    <div class="modal-body">
+      <form id="roleForm" onsubmit="return false">
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">Rol adı <span>*</span></label>
+            <input class="form-control" id="rName" placeholder="məs. Menecer" />
+          </div>
+          <div class="form-row" style="grid-template-columns:1fr 1fr;gap:10px">
+            <div class="form-group">
+              <label class="form-label">İkon (emoji)</label>
+              <input class="form-control" id="rIcon" placeholder="📋" maxlength="4" />
+            </div>
+            <div class="form-group">
+              <label class="form-label">Rəng</label>
+              <input class="form-control" id="rColor" type="color" value="#6c63ff" style="height:42px;padding:4px 8px;cursor:pointer" />
+            </div>
+          </div>
+        </div>
+        <div class="form-group" style="margin-top:4px">
+          <label class="form-label">İcazələr</label>
+          <div class="perm-check-grid" id="permCheckboxes"></div>
+        </div>
+      </form>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-outline" onclick="closeModal('roleModal')">Ləğv et</button>
+      <button class="btn btn-primary" onclick="saveRole()">💾 Yadda saxla</button>
+    </div>
   </div>
 </div>
 
