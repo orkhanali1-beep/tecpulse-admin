@@ -1,0 +1,487 @@
+<!DOCTYPE html>
+<html lang="az">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>TecPulse Mobile — Admin Panel</title>
+  <link rel="stylesheet" href="css/style.css" />
+</head>
+<body>
+
+<!-- ══ SIDEBAR OVERLAY (mobile) ══ -->
+<div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+<!-- ══ SIDEBAR ══ -->
+<aside class="sidebar" id="sidebar">
+  <div class="sidebar-header">
+    <a class="sidebar-logo" href="#">
+      <div class="logo-icon">📱</div>
+      <div class="logo-text">
+        <strong>TecPulse</strong>
+        <span>Admin Panel</span>
+      </div>
+    </a>
+  </div>
+
+  <nav class="sidebar-nav">
+    <div class="nav-section-label">Əsas</div>
+    <button class="nav-item" data-page="dashboard">
+      <span class="nav-icon">📊</span> Dashboard
+    </button>
+    <button class="nav-item" data-page="products">
+      <span class="nav-icon">📦</span> Məhsullar
+      <span class="nav-badge">8</span>
+    </button>
+    <button class="nav-item" data-page="orders">
+      <span class="nav-icon">🛍️</span> Sifarişlər
+      <span class="nav-badge">3</span>
+    </button>
+    <button class="nav-item" data-page="customers">
+      <span class="nav-icon">👥</span> Müştərilər
+    </button>
+
+    <div class="nav-section-label">İdarəetmə</div>
+    <button class="nav-item" data-page="categories">
+      <span class="nav-icon">🏷️</span> Kateqoriyalar
+    </button>
+    <button class="nav-item" data-page="settings">
+      <span class="nav-icon">⚙️</span> Ayarlar
+    </button>
+  </nav>
+
+  <div class="sidebar-footer">
+    <div class="sidebar-user">
+      <div class="user-avatar">A</div>
+      <div class="user-info">
+        <strong>Admin</strong>
+        <span>tecpulsemobile.lovable.app</span>
+      </div>
+      <span class="user-arrow">›</span>
+    </div>
+  </div>
+</aside>
+
+<!-- ══ MAIN ══ -->
+<div class="main-content">
+
+  <!-- TOPBAR -->
+  <header class="topbar">
+    <button class="menu-toggle" id="menuToggle">☰</button>
+
+    <div class="topbar-title">
+      <h1 id="topbar-title">📊 Dashboard</h1>
+      <span id="topbar-subtitle">Ümumi baxış</span>
+    </div>
+
+    <div class="topbar-actions">
+      <div class="search-box">
+        <span class="search-icon">🔍</span>
+        <input type="text" id="searchInput" placeholder="Axtar..." />
+      </div>
+      <button class="topbar-btn" onclick="showToast('🔔 Yeni sifariş: TP-007', 'success')">
+        🔔
+        <span class="notif-dot"></span>
+      </button>
+      <button class="topbar-btn" onclick="goTo('settings')">👤</button>
+    </div>
+  </header>
+
+  <!-- ══ PAGE BODY ══ -->
+  <div class="page-body">
+
+    <!-- ═══════════ DASHBOARD PAGE ═══════════ -->
+    <div class="page" id="page-dashboard">
+
+      <!-- Stat Cards -->
+      <div class="stats-grid">
+        <div class="stat-card">
+          <div class="stat-header">
+            <span class="stat-label">Ümumi Gəlir</span>
+            <div class="stat-icon purple">💰</div>
+          </div>
+          <div class="stat-value" id="statRevenue">0 ₼</div>
+          <div class="stat-change up">↑ +12.4% keçən aya görə</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-header">
+            <span class="stat-label">Aktiv Sifarişlər</span>
+            <div class="stat-icon orange">🛍️</div>
+          </div>
+          <div class="stat-value" id="statOrders">0</div>
+          <div class="stat-change up">↑ +5 bu həftə</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-header">
+            <span class="stat-label">Məhsullar</span>
+            <div class="stat-icon green">📦</div>
+          </div>
+          <div class="stat-value" id="statProducts">0</div>
+          <div class="stat-change down">↓ 1 stokda yoxdur</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-header">
+            <span class="stat-label">Müştərilər</span>
+            <div class="stat-icon pink">👥</div>
+          </div>
+          <div class="stat-value" id="statCustomers">0</div>
+          <div class="stat-change up">↑ +3 bu ay</div>
+        </div>
+      </div>
+
+      <!-- Charts -->
+      <div class="charts-row">
+        <div class="card">
+          <div class="card-header">
+            <div>
+              <div class="card-title">Satış Statistikası</div>
+              <div class="card-subtitle">Son 12 ay · AZN</div>
+            </div>
+            <button class="card-action">Hamısını gör</button>
+          </div>
+          <div class="card-body">
+            <div class="chart-bars" id="chartBars"></div>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-header">
+            <div>
+              <div class="card-title">Kateqoriya Payı</div>
+              <div class="card-subtitle">Bu ay</div>
+            </div>
+          </div>
+          <div class="card-body">
+            <div class="donut-chart">
+              <svg viewBox="0 0 140 140" id="donutSvg"></svg>
+              <div class="donut-center">
+                <strong>100%</strong>
+                <span>Satışlar</span>
+              </div>
+            </div>
+            <div class="donut-legend" id="donutLegend"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Recent Orders + Top Products -->
+      <div class="charts-row">
+        <div class="card">
+          <div class="card-header">
+            <div>
+              <div class="card-title">Son Sifarişlər</div>
+              <div class="card-subtitle">Ən yeni 5 sifariş</div>
+            </div>
+            <button class="card-action" onclick="goTo('orders')">Hamısı →</button>
+          </div>
+          <div class="card-body" style="padding:0">
+            <div class="table-wrap">
+              <table>
+                <thead>
+                  <tr>
+                    <th>№</th>
+                    <th>Müştəri</th>
+                    <th>Məhsul</th>
+                    <th>Məbləğ</th>
+                    <th>Status</th>
+                  </tr>
+                </thead>
+                <tbody id="recentOrders"></tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-header">
+            <div>
+              <div class="card-title">Ən Çox Satılanlar</div>
+              <div class="card-subtitle">Top 5 məhsul</div>
+            </div>
+          </div>
+          <div class="card-body" id="topProducts"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ═══════════ PRODUCTS PAGE ═══════════ -->
+    <div class="page" id="page-products">
+      <div class="page-toolbar">
+        <div class="filter-tabs">
+          <button class="filter-tab active" onclick="filterProducts('all', event)">Hamısı</button>
+          <button class="filter-tab" onclick="filterProducts('active', event)">Aktiv</button>
+          <button class="filter-tab" onclick="filterProducts('low', event)">Az qalıb</button>
+          <button class="filter-tab" onclick="filterProducts('out', event)">Bitmişdir</button>
+        </div>
+        <div style="flex:1"></div>
+        <button class="btn btn-primary" onclick="openAddProduct()">➕ Məhsul əlavə et</button>
+      </div>
+
+      <div class="card">
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Məhsul</th>
+                <th>Qiymət</th>
+                <th>Stok</th>
+                <th>Status</th>
+                <th>Satış</th>
+                <th>Əməliyyat</th>
+              </tr>
+            </thead>
+            <tbody id="productsBody"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- ═══════════ ORDERS PAGE ═══════════ -->
+    <div class="page" id="page-orders">
+      <div class="page-toolbar">
+        <div class="filter-tabs">
+          <button class="filter-tab active">Hamısı</button>
+          <button class="filter-tab">Yeni</button>
+          <button class="filter-tab">Hazırlanır</button>
+          <button class="filter-tab">Göndərilib</button>
+          <button class="filter-tab">Çatdırılıb</button>
+        </div>
+      </div>
+      <div class="card">
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Sifariş №</th>
+                <th>Müştəri</th>
+                <th>Məhsul</th>
+                <th>Məbləğ</th>
+                <th>Status</th>
+                <th>Tarix</th>
+                <th>Əməliyyat</th>
+              </tr>
+            </thead>
+            <tbody id="ordersBody"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- ═══════════ CUSTOMERS PAGE ═══════════ -->
+    <div class="page" id="page-customers">
+      <div class="page-toolbar">
+        <div class="search-box" style="display:flex">
+          <span class="search-icon">🔍</span>
+          <input type="text" placeholder="Müştəri axtar..." style="width:200px" />
+        </div>
+        <div style="flex:1"></div>
+        <button class="btn btn-outline">📤 Export</button>
+      </div>
+      <div class="card">
+        <div id="customersList"></div>
+      </div>
+    </div>
+
+    <!-- ═══════════ CATEGORIES PAGE ═══════════ -->
+    <div class="page" id="page-categories">
+      <div class="page-toolbar">
+        <button class="btn btn-primary" onclick="showToast('✅ Kateqoriya əlavə edildi', 'success')">➕ Kateqoriya əlavə et</button>
+      </div>
+      <div class="stats-grid" style="grid-template-columns:repeat(4,1fr)">
+        <div class="stat-card" style="cursor:pointer" onclick="showToast('📱 Telefon kateqoriyası seçildi')">
+          <div class="stat-icon purple" style="width:52px;height:52px;font-size:26px;margin-bottom:8px">📱</div>
+          <div class="stat-value" style="font-size:22px">Telefon</div>
+          <div class="text-muted mt-1">3 məhsul · 90 satış</div>
+          <div class="badge badge-success mt-2">Aktiv</div>
+        </div>
+        <div class="stat-card" style="cursor:pointer" onclick="showToast('💻 Noutbuk kateqoriyası seçildi')">
+          <div class="stat-icon green" style="width:52px;height:52px;font-size:26px;margin-bottom:8px">💻</div>
+          <div class="stat-value" style="font-size:22px">Noutbuk</div>
+          <div class="text-muted mt-1">2 məhsul · 26 satış</div>
+          <div class="badge badge-success mt-2">Aktiv</div>
+        </div>
+        <div class="stat-card" style="cursor:pointer" onclick="showToast('🎧 Qulaqlıq kateqoriyası seçildi')">
+          <div class="stat-icon orange" style="width:52px;height:52px;font-size:26px;margin-bottom:8px">🎧</div>
+          <div class="stat-value" style="font-size:22px">Qulaqlıq</div>
+          <div class="text-muted mt-1">2 məhsul · 89 satış</div>
+          <div class="badge badge-success mt-2">Aktiv</div>
+        </div>
+        <div class="stat-card" style="cursor:pointer" onclick="showToast('📲 Tablet kateqoriyası seçildi')">
+          <div class="stat-icon pink" style="width:52px;height:52px;font-size:26px;margin-bottom:8px">📲</div>
+          <div class="stat-value" style="font-size:22px">Tablet</div>
+          <div class="text-muted mt-1">1 məhsul · 14 satış</div>
+          <div class="badge badge-success mt-2">Aktiv</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ═══════════ SETTINGS PAGE ═══════════ -->
+    <div class="page" id="page-settings">
+      <div style="max-width:700px">
+        <div class="card">
+          <div class="card-header"><div class="card-title">Mağaza Məlumatları</div></div>
+          <div class="card-body">
+            <div class="settings-section">
+              <div class="form-row">
+                <div class="form-group">
+                  <label class="form-label">Mağaza adı</label>
+                  <input class="form-control" value="TecPulse Mobile" />
+                </div>
+                <div class="form-group">
+                  <label class="form-label">Domen</label>
+                  <input class="form-control" value="tecpulsemobile.lovable.app" readonly style="opacity:.6" />
+                </div>
+              </div>
+              <div class="form-group">
+                <label class="form-label">Ünvan</label>
+                <input class="form-control" placeholder="Bakı, Azərbaycan" />
+              </div>
+              <div class="form-group">
+                <label class="form-label">Əlaqə nömrəsi</label>
+                <input class="form-control" placeholder="+994 50 XXX XX XX" />
+              </div>
+              <button class="btn btn-primary" onclick="showToast('✅ Məlumatlar yadda saxlandı', 'success')">💾 Yadda saxla</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="card" style="margin-top:20px">
+          <div class="card-header"><div class="card-title">Bildiriş Ayarları</div></div>
+          <div class="card-body">
+            <div class="settings-section">
+              <div class="settings-row">
+                <div class="settings-row-info">
+                  <strong>Yeni sifariş bildirişi</strong>
+                  <span>Yeni sifariş daxil olduqda xəbərdar et</span>
+                </div>
+                <label class="toggle"><input type="checkbox" checked /><span class="toggle-track"></span></label>
+              </div>
+              <div class="settings-row">
+                <div class="settings-row-info">
+                  <strong>Az stok xəbərdarlığı</strong>
+                  <span>Stok 3-dən az olanda xəbərdar et</span>
+                </div>
+                <label class="toggle"><input type="checkbox" checked /><span class="toggle-track"></span></label>
+              </div>
+              <div class="settings-row">
+                <div class="settings-row-info">
+                  <strong>Günlük hesabat</strong>
+                  <span>Hər gün axşam satış hesabatı göndər</span>
+                </div>
+                <label class="toggle"><input type="checkbox" /><span class="toggle-track"></span></label>
+              </div>
+              <div class="settings-row">
+                <div class="settings-row-info">
+                  <strong>Email bildirişi</strong>
+                  <span>Vacib yenilikləri email-ə göndər</span>
+                </div>
+                <label class="toggle"><input type="checkbox" checked /><span class="toggle-track"></span></label>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="card" style="margin-top:20px">
+          <div class="card-header"><div class="card-title">Çatdırılma Ayarları</div></div>
+          <div class="card-body">
+            <div class="form-row">
+              <div class="form-group">
+                <label class="form-label">Pulsuz çatdırılma həddi</label>
+                <input class="form-control" value="500" type="number" />
+              </div>
+              <div class="form-group">
+                <label class="form-label">Standart çatdırılma qiyməti (₼)</label>
+                <input class="form-control" value="5" type="number" />
+              </div>
+            </div>
+            <button class="btn btn-primary" onclick="showToast('✅ Ayarlar yadda saxlandı', 'success')">💾 Yadda saxla</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- /page-body -->
+</div><!-- /main-content -->
+
+<!-- ══ PRODUCT MODAL ══ -->
+<div class="modal-overlay" id="productModal">
+  <div class="modal">
+    <div class="modal-header">
+      <div class="modal-title" id="modalTitle">Yeni Məhsul</div>
+      <button class="modal-close" onclick="closeModal('productModal')">×</button>
+    </div>
+    <div class="modal-body">
+      <form id="prodForm" onsubmit="return false">
+        <div class="form-group">
+          <label class="form-label">Məhsul adı <span>*</span></label>
+          <input class="form-control" id="prodName" placeholder="məs. iPhone 15 Pro Max" />
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">Kateqoriya</label>
+            <select class="form-control" id="prodCat">
+              <option>Telefon</option>
+              <option>Noutbuk</option>
+              <option>Tablet</option>
+              <option>Qulaqlıq</option>
+              <option>Aksesuar</option>
+              <option>Digər</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Brend</label>
+            <input class="form-control" id="prodBrand" placeholder="Apple, Samsung..." />
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">Qiymət (₼) <span>*</span></label>
+            <input class="form-control" id="prodPrice" type="number" placeholder="0" />
+          </div>
+          <div class="form-group">
+            <label class="form-label">Köhnə qiymət (₼)</label>
+            <input class="form-control" id="prodOldPrice" type="number" placeholder="0" />
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">Stok miqdarı</label>
+            <input class="form-control" id="prodStock" type="number" placeholder="0" />
+          </div>
+          <div class="form-group">
+            <label class="form-label">Emoji</label>
+            <input class="form-control" id="prodEmoji" placeholder="📱" maxlength="4" />
+          </div>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Status</label>
+          <select class="form-control" id="prodStatus">
+            <option value="active">Aktiv</option>
+            <option value="inactive">Deaktiv</option>
+          </select>
+        </div>
+      </form>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-outline" onclick="closeModal('productModal')">Ləğv et</button>
+      <button class="btn btn-primary" onclick="saveProduct()">💾 Yadda saxla</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══ ORDER DETAIL MODAL ══ -->
+<div class="modal-overlay" id="orderModal">
+  <div class="modal">
+    <div class="modal-header">
+      <div class="modal-title">🛍️ Sifariş Təfərrüatı</div>
+      <button class="modal-close" onclick="closeModal('orderModal')">×</button>
+    </div>
+    <div class="modal-body" id="orderDetail"></div>
+  </div>
+</div>
+
+<!-- ══ TOAST ══ -->
+<div class="toast-container" id="toastContainer"></div>
+
+<script src="js/app.js"></script>
+</body>
+</html>
